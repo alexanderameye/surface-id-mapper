@@ -1,0 +1,15 @@
+{
+  "name": "com.ameye.surface-id-mapper",
+  "displayName": "Surface ID Mapper",
+  "version": "1.0.0",
+  "unity": "2022.2",
+  "description": "Surface ID Mapper.",
+  "keywords": [
+    "mesh",
+    "surface ID"
+  ],
+  "author": {
+    "name": "Alexander Ameye",
+    "email": "alexanderameye@gmail.com"
+  }
+}

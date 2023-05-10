@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2eef74047a3d4eaab2e37253fe3662c, type: 3}
+  m_Name: Section Editor Debug Views
+  m_EditorClassIdentifier: 
+  debugViews:
+  - name: Section Painter
+    shader: {fileID: 4800000, guid: f5fa1db6fc49341fabf86d9bfe5bbe47, type: 3}
+    color: {r: 1, g: 0, b: 0, a: 1}
+  - name: Section Marker
+    shader: {fileID: 4800000, guid: 80ae965177a8947e78192546d49cf03d, type: 3}
+    color: {r: 1, g: 0, b: 0, a: 1}

@@ -1,0 +1,3 @@
+.header-icon {
+    background-image: resource('d_Grid.FillTool@2x');
+}

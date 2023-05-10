@@ -1,0 +1,21 @@
+{
+    "name": "Ameye.OutlinesToolkit.Editor",
+    "rootNamespace": "Ameye.OutlinesToolkit.Editor",
+    "references": [
+        "GUID:24f2e833b9ad4fb5ab80fa6ec305fea9",
+        "GUID:fc5a59800d2c4a23a8d08a15c3daa2cb",
+        "GUID:fe9f7d2ffbe0a42c1b74879c5d2cdb35",
+        "GUID:4942f977fe7c44130a52eda6a41b4329"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

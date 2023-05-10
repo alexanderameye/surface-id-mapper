@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:EnumField label="Channel" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" value="Center" name="channel-enum" />
+    <ui:EnumField label="Fill Mode" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" value="Center" name="fill-mode-enum" />
+    <uie:ColorField value="RGBA(0.000, 1.000, 1.000, 1.000)" name="color-field" />
+    <ui:VisualElement name="button-row-1" style="flex-direction: row; margin-top: 5px; justify-content: space-around; align-items: auto; flex-grow: 0;">
+        <ui:Button tabindex="-1" text="Fill" display-tooltip-when-elided="true" name="fill-button" style="flex-grow: 1; flex-shrink: 0; align-items: auto; justify-content: flex-start; margin-left: 2px; margin-right: 2px; margin-top: 0; margin-bottom: 0;" />
+        <ui:Button tabindex="-1" text="Randomize" display-tooltip-when-elided="true" name="randomize-button" style="flex-grow: 1; margin-left: 2px; margin-right: 2px; margin-top: 0; margin-bottom: 0;" />
+        <ui:Button tabindex="-1" text="Set Sequential" display-tooltip-when-elided="true" name="set-sequential-button" style="flex-grow: 1; margin-left: 2px; margin-right: 2px; margin-top: 0; margin-bottom: 0;" />
+        <ui:Button tabindex="-1" text="Clear" display-tooltip-when-elided="true" name="clear-button" style="flex-grow: 1; flex-shrink: 0; margin-left: 2px; margin-right: 2px; margin-top: 0; margin-bottom: 0;" />
+    </ui:VisualElement>
+</ui:UXML>
