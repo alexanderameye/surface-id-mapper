@@ -11,11 +11,12 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
     public class SurfaceIdMapData : MonoBehaviour
     {
         // Serialized stream data.
+        // NOTE: Needs to be serialized so that undo/redo can be performed on it.
         [SerializeField] private Color[] vertexColors;
         
         // Meshes.
         private Mesh mesh;
-        private Mesh stream; // TODO: Convert this to a more minimal mesh with a different data structure that allows rapid operations on it.
+        [SerializeField] private Mesh stream; // TODO: Convert this to a more minimal mesh with a different data structure that allows rapid operations on it.
         
         private ComponentsCache componentsCache;
         
@@ -95,7 +96,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
 
         private void Awake()
         {
-            Initialize();
+            //OnUndoRedo();
         }
         
         private void OnDestroy()
@@ -106,22 +107,24 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         
         public void SetColors(Color[] colors)
         {
-            Undo.RecordObject(this, "Set stream vertex colors.");
+            Undo.RecordObject(this, "Apply stream vertex colors.");
             vertexColors = colors;
-            stream.SetColors(vertexColors);
+            Apply();
         }
         
         public void SetColor(Color color)
         {
-            Undo.RecordObject(this, "Set stream vertex colors.");
+            Undo.RecordObject(this, "Apply stream vertex colors.");
             vertexColors = new Color[mesh.vertexCount];
             for (var i = 0; i < vertexColors.Length; i++) vertexColors[i] = color;
-            stream.SetColors(vertexColors);
+            Apply();
         }
-        
-        public void OnUndoRedo()
+
+        public void OnUndoRedo() => Apply();
+
+        private void Apply()
         {
-           if (vertexColors is {Length: > 0}) stream.colors = vertexColors;
+            if(vertexColors is {Length: > 0}) stream.colors = vertexColors;
         }
     }
 }
