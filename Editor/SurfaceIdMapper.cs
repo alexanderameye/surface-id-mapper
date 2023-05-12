@@ -164,11 +164,8 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             if (_selectedMeshFilter)
             {
-                var paintData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
-                if (paintData)
-                {
-                    paintData.Apply();
-                }
+                var data = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
+                if (data) data.OnUndoRedo();
             }
         }
 
@@ -176,6 +173,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             // Leave section marker.
             Leave();
+            
         }
 
         private static void OnSceneOpened(Scene scene, OpenSceneMode mode)
@@ -334,7 +332,7 @@ namespace Ameye.SurfaceIdMapper.Editor
                             // shift + left click -> pick color
                             case 0 when currentEvent.shift:
                                 var paintData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
-                                var colors = paintData.GetColors();
+                                var colors = paintData.VertexColors;
                                 PickColor(colors[_meshIntersection.index0]);
                                 break;
                             // left click -> paint picked color
@@ -490,7 +488,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             var sectionMarkerData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
             Undo.RecordObject(sectionMarkerData, "Modified SectionPaintData.");
 
-            var colors = sectionMarkerData.GetColors();
+            var colors = sectionMarkerData.VertexColors;
             foreach (var triangle in triangles) SurfaceIdMapperUtility.ModifyColorForChannel(ref colors[triangle], color, _activeChannel);
             sectionMarkerData.SetColors(colors);
         }

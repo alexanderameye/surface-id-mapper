@@ -58,7 +58,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
         {
             // Performance timing start.
             var stopwatch = Stopwatch.StartNew();
-            var colors = data.GetColors();
+            var colors = data.VertexColors;
             // WARN: Does not go through sub-meshes.
             for (var i = 0; i < mesh.vertexCount; ++i) ModifyColorForChannel(ref colors[i], color, channel);
             data.SetColors(colors);
@@ -75,7 +75,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             var stopwatch = Stopwatch.StartNew();
             
             // Get colors.
-            var colors = data.GetColors();
+            var colors = data.VertexColors;
             var visitedTriangles = new Dictionary<(int index0, int index1, int index2), bool>();
             
             var assignedColorIndex = 1;
