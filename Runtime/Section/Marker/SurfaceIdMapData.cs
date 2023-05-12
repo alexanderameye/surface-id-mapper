@@ -6,6 +6,9 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
     // https://github.com/SixWays/FacePaint/blob/master/Scripts/FacePaintData.cs
     // https://github.com/needle-mirror/com.unity.polybrush/blob/5da6404a35b2bcba05009a091745be6b3667c3c2/Runtime/Scripts/MonoBehaviour/PolybrushMesh.cs
     
+    /// <summary>
+    /// Component that holds additional vertex attributes for a mesh.
+    /// </summary>
     [DisallowMultipleComponent, ExecuteInEditMode]
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class SurfaceIdMapData : MonoBehaviour
@@ -18,8 +21,17 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         private Mesh mesh;
         [SerializeField] private Mesh stream; // TODO: Convert this to a more minimal mesh with a different data structure that allows rapid operations on it.
         
-        private ComponentsCache componentsCache;
+        [SerializeField] private ComponentsCache componentsCache;
         
+
+        public MeshRenderer MeshRenderer
+        {
+            get
+            {
+                if (!componentsCache.IsValid()) componentsCache = new ComponentsCache(gameObject);
+                return componentsCache.MeshRenderer; }
+        }
+
         public Color[] VertexColors
         {
             get => vertexColors ??= stream.colors;
@@ -74,9 +86,10 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             for (var i = 0; i < vertexColors.Length; i++) vertexColors[i] = Color.white;
             stream.colors = vertexColors;
             componentsCache.MeshRenderer.additionalVertexStreams = stream;
+            componentsCache.MeshRenderer.additionalVertexStreams.name = mesh.name + " (AVS)";
+            stream.hideFlags = HideFlags.HideAndDontSave;
             
             IsInitialized = true;
-            Debug.Log("Initialized Surface ID Map Data.");
         }
         
         /// <summary>
@@ -107,6 +120,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         
         public void SetColors(Color[] colors)
         {
+            Debug.Log(MeshRenderer);
             Undo.RecordObject(this, "Apply stream vertex colors.");
             vertexColors = colors;
             Apply();

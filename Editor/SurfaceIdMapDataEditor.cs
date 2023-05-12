@@ -1,6 +1,3 @@
-using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
-using Ameye.OutlinesToolkit.Editor.Sectioning.Utilities;
-using Ameye.SurfaceIdMapper.Editor.Utilities;
 using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEditor;
 using UnityEngine;
@@ -8,36 +5,55 @@ using UnityEngine.UIElements;
 
 namespace Ameye.SurfaceIdMapper.Editor
 {
+    /// <summary>
+    /// Custom Editor for SurfaceIdMapData.
+    /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(SurfaceIdMapData))]
     public class SurfaceIdMapDataEditor : UnityEditor.Editor
     {
-        private readonly GUIContent info =
-            EditorGUIUtility.TrTextContent(
-                "This component contains section marker data (vertex colors)." +
-                "\nDelete this component to reset the mesh to its original vertex colors." +
-                "\nCopy/paste this component to another gameobject with a MeshRenderer component to apply the same section paint data (vertex colors).");
-       
+        private static class Styles
+        {
+            internal static readonly GUIContent ComponentInfo = EditorGUIUtility.TrTextContent("This component holds additional vertex attributes for a mesh.");
+            internal static readonly GUIContent AdditionalVertexStreamsLabel = EditorGUIUtility.TrTextContent("Vertex Stream");
+            internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Rebuild Data");
+        }
+        
         public VisualTreeAsset visualTreeAsset;
         public StyleSheet styleSheet;
 
         private Button fillButton, randomizeButton, setOccluderButton;
         private Button rebuildDataButton;
         private ProgressBar progressBar;
-        private SurfaceIdMapData markerData;
+        private SurfaceIdMapData data;
 
         private VisualElement headerIcon;
 
-        public override VisualElement CreateInspectorGUI()
+        public override void OnInspectorGUI()
         {
-            markerData = (SurfaceIdMapData) target;
+            data = target as SurfaceIdMapData;
+            
+            GUI.enabled = false;
+            if (data.MeshRenderer != null) EditorGUILayout.ObjectField(Styles.AdditionalVertexStreamsLabel, data.MeshRenderer.additionalVertexStreams, typeof(Mesh), true);
+            GUI.enabled = true;
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.HelpBox(Styles.ComponentInfo.text, MessageType.Info);
+            EditorGUILayout.Space();
+            
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button(Styles.RebuildDataButton)) data.Rebuild();
+            }
+        }
+
+        /*public override VisualElement CreateInspectorGUI()
+        {
+            data = target as SurfaceIdMapData;
             
             var root = new VisualElement();
-            
             visualTreeAsset.CloneTree(root);
-            
             root.styleSheets.Add(styleSheet);
-            
-          
 
             var helpBox = new HelpBox();
             helpBox.text = info.text;
@@ -70,28 +86,28 @@ namespace Ameye.SurfaceIdMapper.Editor
             //progressBar = root.Q<ProgressBar>("progress-bar");
             
             return root;
-        }
+        }*/
 
-        private void OnRebuildDataButtonClicked()
+      /*  private void OnRebuildDataButtonClicked()
         {
-            markerData.Rebuild();
+            data.Rebuild();
         }
         
         private void OnRandomizeButtonClicked()
         {
-            var gameObject = markerData.gameObject;
+            var gameObject = data.gameObject;
             var mesh = gameObject.GetComponent<MeshFilter>().sharedMesh;
-            SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(markerData, mesh, Channel.R, SectionMarkMode.Random);
+            SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(data, mesh, Channel.R, SectionMarkMode.Random);
         }
 
         private void OnSetOccluderButtonClicked()
         {
-            markerData.SetColor(Color.black);
+            data.SetColor(Color.black);
         }
         
         private void OnFillButtonClicked()
         {
-            markerData.SetColor(Color.red);
-        }
+            data.SetColor(Color.red);
+        }*/
     }
 }
