@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
-using Ameye.OutlinesToolkit.Sectioning.Marker;
-using UnityEditor;
+using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-namespace Ameye.OutlinesToolkit.Editor.Sectioning.Utilities
+namespace Ameye.SurfaceIdMapper.Editor.Utilities
 {
-    public static class SectionUtility
+    public static class SurfaceIdMapperUtility
     {
         public static Color32 GetRandomSectionColorForChannel(Channel channel)
         {
@@ -56,7 +54,7 @@ namespace Ameye.OutlinesToolkit.Editor.Sectioning.Utilities
             }
         }
 
-        public static void FillMarkerDataWithColor(SectionMarkerData data, Mesh mesh, Channel channel, Color color)
+        public static void FillMarkerDataWithColor(SurfaceIdMapData data, Mesh mesh, Channel channel, Color color)
         {
             // Performance timing start.
             var stopwatch = Stopwatch.StartNew();
@@ -69,7 +67,7 @@ namespace Ameye.OutlinesToolkit.Editor.Sectioning.Utilities
             Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
 
-        public static void SetSectionMarkerDataForMesh(SectionMarkerData data, Mesh mesh, Channel channel, SectionMarkMode mode)
+        public static void SetSectionMarkerDataForMesh(SurfaceIdMapData data, Mesh mesh, Channel channel, SectionMarkMode mode)
         {
             // NOTE: All triangles are handled as index buffers so a single triangle takes up 3 elements.
             
@@ -135,15 +133,17 @@ namespace Ameye.OutlinesToolkit.Editor.Sectioning.Utilities
             Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
         
-        public static SectionMarkerData GetOrAddSectionMarkerData(GameObject gameObject)
+        public static SurfaceIdMapData GetOrAddSurfaceIdMapData(GameObject gameObject)
         {
-            if (gameObject == null) Debug.LogError("Trying to get section marker data for null gameobject.");
-            if (gameObject.TryGetComponent(out SectionMarkerData markerData)) return markerData;
+            if (gameObject == null) Debug.LogError("Trying to get surface ID map data for null gameobject.");
+            if (gameObject.TryGetComponent(out SurfaceIdMapData data)) return data;
             
-            // If no sectioning paint data has been added yet, add it and initialize the data with a default color.
+            // If no surface ID map data has been added yet, add it and initialize the data with a default color.
             // the default color is black but with an R component of 1 so it is not seen as an occluder.
-            markerData = gameObject.AddComponent<SectionMarkerData>();
-            return markerData;
+            data = gameObject.AddComponent<SurfaceIdMapData>();
+          //  data.Initialize();
+
+            return data;
         }
 
         public static List<int> GetConnectedTriangles(int[] triangle, List<int> triangles,

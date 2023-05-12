@@ -1,14 +1,15 @@
 using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
 using Ameye.OutlinesToolkit.Editor.Sectioning.Utilities;
-using Ameye.OutlinesToolkit.Sectioning.Marker;
+using Ameye.SurfaceIdMapper.Editor.Utilities;
+using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Ameye.SurfaceIdMapper.Editor
 {
-    [CustomEditor(typeof(SectionMarkerData))]
-    public class SectionMarkerDataEditor : UnityEditor.Editor
+    [CustomEditor(typeof(SurfaceIdMapData))]
+    public class SurfaceIdMapDataEditor : UnityEditor.Editor
     {
         private readonly GUIContent info =
             EditorGUIUtility.TrTextContent(
@@ -22,13 +23,13 @@ namespace Ameye.SurfaceIdMapper.Editor
         private Button fillButton, randomizeButton, setOccluderButton;
         private Button rebuildDataButton;
         private ProgressBar progressBar;
-        private SectionMarkerData markerData;
+        private SurfaceIdMapData markerData;
 
         private VisualElement headerIcon;
 
         public override VisualElement CreateInspectorGUI()
         {
-            markerData = (SectionMarkerData) target;
+            markerData = (SurfaceIdMapData) target;
             
             var root = new VisualElement();
             
@@ -80,7 +81,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             var gameObject = markerData.gameObject;
             var mesh = gameObject.GetComponent<MeshFilter>().sharedMesh;
-            SectionUtility.SetSectionMarkerDataForMesh(markerData, mesh, Channel.R, SectionMarkMode.Random);
+            SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(markerData, mesh, Channel.R, SectionMarkMode.Random);
         }
 
         private void OnSetOccluderButtonClicked()

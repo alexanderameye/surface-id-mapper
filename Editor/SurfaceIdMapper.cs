@@ -7,6 +7,7 @@ using Ameye.SRPUtilities.Editor.DebugViewer;
 using Ameye.SRPUtilities.Editor.Enums;
 using Ameye.SRPUtilities.Editor.Utilities;
 using Ameye.SurfaceIdMapper.Editor.Marker;
+using Ameye.SurfaceIdMapper.Editor.Utilities;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -51,8 +52,8 @@ namespace Ameye.SurfaceIdMapper.Editor
         public static GameObject SelectedGameObject { get; private set; }
         public static Color32 PickedColor => _pickedColor;
 
-        // actions
-        public static event Action<bool> ActiveStatusChanged = delegate { };
+        // Actions.
+        public static event Action<bool> ToolActiveStatusChanged = delegate { };
         public static event Action<Channel> ActiveChannelChanged = delegate { };
         public static event Action<Color32> ColorPicked = delegate { };
         public static event Action<bool> EnabledStatusChanged = delegate {  };
@@ -78,12 +79,9 @@ namespace Ameye.SurfaceIdMapper.Editor
         public static void Enter()
         {
             _active = true;
-            ActiveStatusChanged(true);
+            ToolActiveStatusChanged(true);
 
-            // hide tools (fixme: idk what this does really, nothing it seems?)
-            Tools.hidden = true;
-
-            // Enable section painter debug view.
+            // Enable surface id mapper debug view.
             DebugViewHandler.EnableDebugView(true);
             DebugViewHandler.SetDebugView(DebugViewHandler.DebugViewsAsset.debugViews.Find(view => view.name == "Section Marker"));
 
@@ -91,18 +89,21 @@ namespace Ameye.SurfaceIdMapper.Editor
             SceneView.lastActiveSceneView.sceneViewState.SetAllEnabled(false);
             SceneView.RepaintAll();
 
-            // focus on selected gameobject
+            // Focus on selected gameobject.
             SceneView.lastActiveSceneView.FrameSelected();
 
             // register the selected gameobject (that is being painted)
             // note: we can access the MeshRenderer and MeshFilter components because they are guaranteed to be available
             //       because otherwise the section painter tool wasn't enabled but this is a bit hacky idk
             SelectedGameObject = Selection.activeGameObject;
-            SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject); // initialize
+           
             _selectedMeshRenderer = SelectedGameObject.GetComponent<MeshRenderer>();
             _selectedMeshFilter = SelectedGameObject.GetComponent<MeshFilter>();
             _selectedMeshRendererInstanceIds = new[] {_selectedMeshRenderer.GetInstanceID()};
             _mesh = _selectedMeshFilter.sharedMesh;
+            
+            // Add surface ID map data.
+            SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
 
             // deselect everything
            // Selection.objects = Array.Empty<Object>();
@@ -139,7 +140,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             // AssetDatabase.Refresh();
 
             _active = false;
-            ActiveStatusChanged(false);
+            ToolActiveStatusChanged(false);
 
             // reset the selected gameobject
             Selection.activeGameObject = SelectedGameObject;
@@ -163,10 +164,10 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             if (_selectedMeshFilter)
             {
-                var paintData = SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject);
+                var paintData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
                 if (paintData)
                 {
-                    paintData.ApplyColors();
+                    paintData.Apply();
                 }
             }
         }
@@ -332,7 +333,7 @@ namespace Ameye.SurfaceIdMapper.Editor
                                 break;
                             // shift + left click -> pick color
                             case 0 when currentEvent.shift:
-                                var paintData = SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject);
+                                var paintData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
                                 var colors = paintData.GetColors();
                                 PickColor(colors[_meshIntersection.index0]);
                                 break;
@@ -381,16 +382,16 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         public static void SetSectionMarkerDataForSelectedGameobject(SectionMarkMode application)
         {
-            var markerData = SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject);
+            var markerData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
             Undo.RecordObject(markerData, "Modified Section Marker Data.");
-            SectionUtility.SetSectionMarkerDataForMesh(markerData, _selectedMeshFilter.sharedMesh, _activeChannel, application);
+            SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(markerData, _selectedMeshFilter.sharedMesh, _activeChannel, application);
         }
 
         public static void SetSectionMarkerDataForSelectedGameObject(Color32 color)
         {
-            var markerData = SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject);
+            var markerData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
             Undo.RecordObject(markerData, "Modified Section Marker Data.");
-            SectionUtility.FillMarkerDataWithColor(markerData, _selectedMeshFilter.sharedMesh, _activeChannel, color);
+            SurfaceIdMapperUtility.FillMarkerDataWithColor(markerData, _selectedMeshFilter.sharedMesh, _activeChannel, color);
             
         }
         
@@ -409,7 +410,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             if (_vertexColors.Count == 0) _vertexColors = new List<Color32>(new Color32[_mesh.vertexCount]);
 
             // Generate a random color.
-            var randomColor = SectionUtility.GetRandomSectionColorForChannel(_activeChannel);
+            var randomColor = SurfaceIdMapperUtility.GetRandomSectionColorForChannel(_activeChannel);
 
             // Set section marker data.
             SetSectionMarkerDataForTriangles(triangles, randomColor);
@@ -451,7 +452,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         
         public static void ClearPaintDataForSelectedGameObject()
         {
-            var paintData = SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject);
+            var paintData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
             Undo.RecordObject(paintData, "Modified SectionPaintData.");
 
             paintData.SetColor(Color.black);
@@ -486,11 +487,11 @@ namespace Ameye.SurfaceIdMapper.Editor
         /// <param name="color"></param>
         private static void SetSectionMarkerDataForTriangles(List<int> triangles, Color32 color)
         {
-            var sectionMarkerData = SectionUtility.GetOrAddSectionMarkerData(SelectedGameObject);
+            var sectionMarkerData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
             Undo.RecordObject(sectionMarkerData, "Modified SectionPaintData.");
 
             var colors = sectionMarkerData.GetColors();
-            foreach (var triangle in triangles) SectionUtility.ModifyColorForChannel(ref colors[triangle], color, _activeChannel);
+            foreach (var triangle in triangles) SurfaceIdMapperUtility.ModifyColorForChannel(ref colors[triangle], color, _activeChannel);
             sectionMarkerData.SetColors(colors);
         }
 
@@ -635,7 +636,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             var triangles = new List<int>(_mesh.triangles);
             var normals = _mesh.normals.ToList();
             
-            return SectionUtility.GetConnectedTriangles(triangle, triangles);
+            return SurfaceIdMapperUtility.GetConnectedTriangles(triangle, triangles);
         }
 
 

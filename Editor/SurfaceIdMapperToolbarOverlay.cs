@@ -87,18 +87,18 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         protected virtual void OnAttachToPanel(AttachToPanelEvent evt)
         {
-            SurfaceIdMapper.ActiveStatusChanged += OnSectionMarkerActiveStatusChanged;
+            SurfaceIdMapper.ToolActiveStatusChanged += OnSectionMarkerToolActiveStatusChanged;
             Selection.selectionChanged += OnSelectionChanged;
         }
 
-        private void OnSectionMarkerActiveStatusChanged(bool active)
+        private void OnSectionMarkerToolActiveStatusChanged(bool active)
         {
             SetValueWithoutNotify(active);
         }
 
         protected virtual void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
-            SurfaceIdMapper.ActiveStatusChanged -= OnSectionMarkerActiveStatusChanged;
+            SurfaceIdMapper.ToolActiveStatusChanged -= OnSectionMarkerToolActiveStatusChanged;
             Selection.selectionChanged -= OnSelectionChanged;
         }
 
