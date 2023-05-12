@@ -15,8 +15,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         public const string OverlayID = "surface-id-mapper-overlay";
 
         private SurfaceIdMapperToolbarOverlay() : base(
-            SurfaceIdMapperToggle.ID,
-            SectionEditorContextLabel.ID
+            SurfaceIdMapperToggle.ID
         )
         {
         }
@@ -42,20 +41,7 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         private void OnDuringSceneGui(SceneView sceneView)
         {
-            // if the section painter is not meant to be used, do nothing
             if (!visible) return;
-
-            var currentEvent = Event.current;
-
-           /* switch (currentEvent.type)
-            {
-                case EventType.KeyDown:
-                    if (currentEvent.keyCode == KeyCode.Tab && !SectionMarker.IsActive())
-                    {
-                        SectionMarker.Enter();
-                    }
-                    break;
-            }*/
         }
 
         private void OnSelectionChanged()
@@ -66,7 +52,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         private static bool IsSelectionValid()
         {
             // TODO: Optimize with less GetComponent calls.
-            return Marker.SurfaceIdMapper.IsActive() ||
+            return SurfaceIdMapper.IsActive() ||
                    Selection.activeObject != null &&
                    Selection.activeGameObject != null &&
                    Selection.activeGameObject.activeSelf &&
@@ -85,7 +71,7 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         public SurfaceIdMapperToggle()
         {
-            var content = EditorGUIUtility.TrTextContentWithIcon("", Tooltip, "d_FilterByType@2x");
+            var content = EditorGUIUtility.TrTextContentWithIcon("", Tooltip, "d_NetworkIdentity Icon");
             text = content.text;
             tooltip = content.tooltip;
             icon = content.image as Texture2D;
@@ -101,7 +87,7 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         protected virtual void OnAttachToPanel(AttachToPanelEvent evt)
         {
-            Marker.SurfaceIdMapper.ActiveStatusChanged += OnSectionMarkerActiveStatusChanged;
+            SurfaceIdMapper.ActiveStatusChanged += OnSectionMarkerActiveStatusChanged;
             Selection.selectionChanged += OnSelectionChanged;
         }
 
@@ -110,20 +96,15 @@ namespace Ameye.SurfaceIdMapper.Editor
             SetValueWithoutNotify(active);
         }
 
-        private void OnSectionPainterActiveStatusChanged(bool active)
-        {
-            SetEnabled(!active);
-        }
-
         protected virtual void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
-            Marker.SurfaceIdMapper.ActiveStatusChanged -= OnSectionMarkerActiveStatusChanged;
+            SurfaceIdMapper.ActiveStatusChanged -= OnSectionMarkerActiveStatusChanged;
             Selection.selectionChanged -= OnSelectionChanged;
         }
 
         private void OnSelectionChanged()
         {
-            if (Marker.SurfaceIdMapper.IsActive()) Marker.SurfaceIdMapper.Leave();
+            if (SurfaceIdMapper.IsActive()) SurfaceIdMapper.Leave();
             if (SelectionValid()) SetEnabled(true);
             else SetEnabled(false);
         }
@@ -144,100 +125,8 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         private void Toggle(ChangeEvent<bool> evt)
         {
-            if (evt.newValue) Marker.SurfaceIdMapper.Enter();
-            else Marker.SurfaceIdMapper.Leave();
-        }
-    }
-
-    [EditorToolbarElement(ID, typeof(SceneView))]
-    public class SectionEditorContextLabel : VisualElement
-    {
-        public const string ID = SurfaceIdMapperToolbarOverlay.OverlayID + "/context-label";
-
-        private readonly LabelWithIcon gameobjectLabel;
-        private readonly LabelWithIcon meshLabel;
-        private readonly LabelWithIcon vertexCountLabel;
-        private readonly LabelWithIcon triangleCountLabel;
-
-        
-        // TODO: Add this in a vertical group or something.
-
-        public SectionEditorContextLabel()
-        {
-            gameobjectLabel = new LabelWithIcon("d_GameObject Icon");
-            meshLabel = new LabelWithIcon("d_Mesh Icon");
-            vertexCountLabel = new LabelWithIcon("d_EdgeCollider2D Icon");
-            triangleCountLabel = new LabelWithIcon("CompositeCollider2D Icon");
-            
-            Add(gameobjectLabel);
-            Add(meshLabel);
-            Add(vertexCountLabel);
-            Add(triangleCountLabel);
-
-
-            // keep track of panel events
-            RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
-            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
-
-            // initialize the label
-            UpdateContextLabel();
-        }
-
-        protected virtual void OnAttachToPanel(AttachToPanelEvent evt)
-        {
-            // subscribe to events
-            Selection.selectionChanged += UpdateContextLabel;
-            EditorApplication.hierarchyChanged += UpdateContextLabel;
-        }
-
-        protected virtual void OnDetachFromPanel(DetachFromPanelEvent evt)
-        {
-            // unsubscribe from events
-            Selection.selectionChanged -= UpdateContextLabel;
-            EditorApplication.hierarchyChanged -= UpdateContextLabel;
-        }
-
-        private void UpdateContextLabel()
-        {
-            var selectedGameObjectName = "Unknown";
-            var selectedMeshName = "Unknown";
-            var selectedMeshTriangleCount = 0;
-            var selectedMeshVertexCount = 0;
-
-            if (Marker.SurfaceIdMapper.IsActive() && Marker.SurfaceIdMapper.SelectedGameObject != null)
-            {
-                selectedGameObjectName = Marker.SurfaceIdMapper.SelectedGameObject.name;
-                if (Marker.SurfaceIdMapper.SelectedGameObject.TryGetComponent(out MeshFilter meshFilter))
-                {
-                    if (meshFilter.sharedMesh != null)
-                    {
-                        var sharedMesh = meshFilter.sharedMesh;
-                        selectedMeshName = sharedMesh.name;
-                        selectedMeshTriangleCount = sharedMesh.triangles.Length / 3;
-                        selectedMeshVertexCount = sharedMesh.vertices.Length;
-                    }
-                }
-            }
-            else if (Selection.activeGameObject != null)
-            {
-                selectedGameObjectName = Selection.activeGameObject.name;
-                if (Selection.activeGameObject.TryGetComponent(out MeshFilter meshFilter))
-                {
-                    if (meshFilter.sharedMesh != null)
-                    {
-                        var sharedMesh = meshFilter.sharedMesh;
-                        
-                        selectedMeshName = sharedMesh.name;
-                        selectedMeshTriangleCount = sharedMesh.triangles.Length / 3;
-                        selectedMeshVertexCount = sharedMesh.vertices.Length;
-                    }
-                }
-            }
-
-            gameobjectLabel.Text = selectedGameObjectName;
-            meshLabel.Text = selectedMeshName;
-            triangleCountLabel.Text = selectedMeshTriangleCount.ToString();
-            vertexCountLabel.Text = selectedMeshVertexCount.ToString();
+            if (evt.newValue) SurfaceIdMapper.Enter();
+            else SurfaceIdMapper.Leave();
         }
     }
 }

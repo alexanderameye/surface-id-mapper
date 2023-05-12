@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace Ameye.SurfaceIdMapper.Editor.Marker
 {
-    [Overlay(typeof(SceneView), "Surface ID Mapper Overlay")]
+    [Overlay(typeof(SceneView), "Surface ID Mapper")]
     public class SurfaceIdMapperOverlay : Overlay, ITransientOverlay
     {
         // UXML names

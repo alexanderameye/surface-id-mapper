@@ -6,12 +6,13 @@ using Ameye.OutlinesToolkit.Editor.Sectioning.Utilities;
 using Ameye.SRPUtilities.Editor.DebugViewer;
 using Ameye.SRPUtilities.Editor.Enums;
 using Ameye.SRPUtilities.Editor.Utilities;
+using Ameye.SurfaceIdMapper.Editor.Marker;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Ameye.SurfaceIdMapper.Editor.Marker
+namespace Ameye.SurfaceIdMapper.Editor
 {
     public static class SurfaceIdMapper
     {

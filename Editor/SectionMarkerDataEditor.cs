@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Ameye.SurfaceIdMapper.Editor.Marker
+namespace Ameye.SurfaceIdMapper.Editor
 {
     [CustomEditor(typeof(SectionMarkerData))]
     public class SectionMarkerDataEditor : UnityEditor.Editor

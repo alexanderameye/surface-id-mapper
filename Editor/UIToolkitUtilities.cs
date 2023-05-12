@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Ameye.OutlinesToolkit.Editor
+namespace Ameye.SurfaceIdMapper.Editor
 {
     public static class UIToolkitUtilities
     {
