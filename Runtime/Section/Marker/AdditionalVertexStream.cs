@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
 
 namespace Ameye.SurfaceIdMapper.Section.Marker
@@ -23,7 +24,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         [SerializeField] private Color[] colors;
         
         // Meshes.
-        private Mesh mesh;
+        [SerializeField] private Mesh mesh;
         [SerializeField] private Mesh stream; // TODO: Convert this to a more minimal mesh with a different data structure that allows rapid operations on it.
 
         private ComponentCache componentCache;
@@ -35,8 +36,10 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         [SerializeField]
         private List<Island> islands;
         
-        
-        private Dictionary<(int, int, int), int> islandLookup;
+        [SerializeField]
+        private SerializedDictionary<(int, int, int), int> islandLookup;
+
+        public int NumberOfIslands => islands.Count;
 
         /// <summary>
         /// Has the island data been computer or not?
@@ -67,7 +70,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             }
         }
 
-        public Color[] VertexColors 
+        public Color[] Colors 
         {
             get => colors ??= stream.colors;
             set => colors = stream.colors = value;
@@ -117,9 +120,9 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             stream.MarkDynamic();
             stream.vertices = mesh.vertices;
             stream.triangles = mesh.triangles;
-            colors = new Color[mesh.vertexCount];
-            for (var i = 0; i < colors.Length; i++) colors[i] = Color.white;
-            stream.colors = colors;
+            //colors = new Color[mesh.vertexCount];
+            //for (var i = 0; i < colors.Length; i++) colors[i] = Color.white;
+            //stream.colors = colors;
             componentCache.MeshRenderer.additionalVertexStreams = stream;
             componentCache.MeshRenderer.additionalVertexStreams.name = mesh.name + " (AVS)";
             stream.hideFlags = HideFlags.HideAndDontSave;
@@ -144,7 +147,8 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
 
         private void Awake()
         {
-            //OnUndoRedo();
+            Initialize();
+            Apply();
         }
         
         private void OnDestroy()
@@ -206,7 +210,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         private void GenerateIslands()
         {
             islands = new List<Island>();
-            islandLookup = new Dictionary<(int, int, int), int>();
+            islandLookup = new SerializedDictionary<(int, int, int), int>();
 
             // Get the triangles.
             var triangles = MeshFilter.sharedMesh.triangles;
@@ -317,16 +321,12 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         /// <returns>A list of connected triangles.</returns>
         public List<int> GetConnectedTriangles(int[] triangle)
         {
-            // Regenerate if needed.
-            if (islands == null || islands.Count == 0)
+            // Generate islands if needed.
+            if (islands == null || islands.Count == 0 || islandLookup == null || islandLookup.Count == 0)
             {
-                var generateIslands = Stopwatch.StartNew();
+                Debug.Log("Generated Islands.");
                 GenerateIslands();
-                generateIslands.Stop();
-                Debug.Log("Generated islands in [" + generateIslands.ElapsedMilliseconds + "ms].");
-                Debug.Log("The Surface ID Mapper found " + islands.Count + " islands.");
             }
-            //if (islandLookup == null || islandLookup.Count == 0) islandLookup = GenerateIslandLookup(islands);
             
             // Do a lookup.
             if (!islandLookup.TryGetValue((triangle[0], triangle[1], triangle[2]), out var islandIndex)) return null;

@@ -58,7 +58,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
         {
             // Performance timing start.
             var stopwatch = Stopwatch.StartNew();
-            var colors = data.VertexColors;
+            var colors = data.Colors;
             // WARN: Does not go through sub-meshes.
             for (var i = 0; i < mesh.vertexCount; ++i) ModifyColorForChannel(ref colors[i], color, channel);
             data.SetColors(colors);
@@ -75,7 +75,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             var stopwatch = Stopwatch.StartNew();
             
             // Get colors.
-            var colors = data.VertexColors;
+            var colors = data.Colors;
             var visitedTriangles = new Dictionary<(int index0, int index1, int index2), bool>();
             
             var assignedColorIndex = 1;
@@ -95,12 +95,11 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
 
                 // If this triangle is part of an already processed connected section, skip it.
                 if (visitedTriangles.ContainsKey((triangle[0], triangle[1], triangle[2]))) continue;
-                
+        
                 // Get the connected triangles as a list of indices into the triangles array.
                 connectedTrianglesIndexBuffer = data.GetConnectedTriangles(triangle);
                 if (connectedTrianglesIndexBuffer == null ||connectedTrianglesIndexBuffer.Count == 0) return;
-                //Debug.Log(connectedTrianglesIndexBuffer.Count);
-                
+    
                 // Generate color for this surface.
                 color = mode == SectionMarkMode.Random
                     ? GetRandomColorForChannel(channel)

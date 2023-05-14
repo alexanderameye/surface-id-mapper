@@ -16,8 +16,8 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             internal static readonly GUIContent ComponentInfo = EditorGUIUtility.TrTextContent("This component holds additional vertex attributes for a mesh.");
             internal static readonly GUIContent AdditionalVertexStreamsLabel = EditorGUIUtility.TrTextContent("Vertex Stream");
-            internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Rebuild Data");
-            internal static readonly GUIContent InvalidateIslandDataButton = EditorGUIUtility. TrTextContent("Invalidate Island Data");
+            internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Clear Stream");
+            internal static readonly GUIContent InvalidateIslandDataButton = EditorGUIUtility. TrTextContent("Invalidate Islands");
         }
         
         public VisualTreeAsset visualTreeAsset;
@@ -36,18 +36,32 @@ namespace Ameye.SurfaceIdMapper.Editor
             
             GUI.enabled = false;
             if (data.MeshRenderer != null) EditorGUILayout.ObjectField(Styles.AdditionalVertexStreamsLabel, data.MeshRenderer.additionalVertexStreams, typeof(Mesh), true);
-            EditorGUILayout.Toggle("Island data?", data.IsIslandDataComputed);
+            if (data.MeshRenderer.additionalVertexStreams == null)
+            {
+               
+                    EditorGUILayout.HelpBox("additionalVertexStreams is null.", MessageType.Error);
+                
+            }
+            if (data.IsIslandDataComputed)
+            {
+                EditorGUILayout.LabelField("Surface mapper found " + data.NumberOfIslands + " islands.");
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Islands have not been calculated.", MessageType.Warning);
+            }
             GUI.enabled = true;
             
-            EditorGUILayout.Space();
-            EditorGUILayout.HelpBox(Styles.ComponentInfo.text, MessageType.Info);
-            EditorGUILayout.Space();
             
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button(Styles.RebuildDataButton)) data.Rebuild();
                 if (GUILayout.Button(Styles.InvalidateIslandDataButton)) data.InvalidateIslandData();
             }
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.HelpBox(Styles.ComponentInfo.text, MessageType.Info);
+            EditorGUILayout.Space();
         }
 
         /*public override VisualElement CreateInspectorGUI()

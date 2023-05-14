@@ -332,7 +332,7 @@ namespace Ameye.SurfaceIdMapper.Editor
                             // shift + left click -> pick color
                             case 0 when currentEvent.shift:
                                 var paintData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
-                                var colors = paintData.VertexColors;
+                                var colors = paintData.Colors;
                                 PickColor(colors[_meshIntersection.index0]);
                                 break;
                             // left click -> paint picked color
@@ -485,12 +485,12 @@ namespace Ameye.SurfaceIdMapper.Editor
         /// <param name="color"></param>
         private static void SetSectionMarkerDataForTriangles(List<int> triangles, Color32 color)
         {
-            var sectionMarkerData = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
-            Undo.RecordObject(sectionMarkerData, "Modified SectionPaintData.");
+            var data = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
+            Undo.RecordObject(data, "Modified SectionPaintData.");
 
-            var colors = sectionMarkerData.VertexColors;
+            var colors = data.Colors;
             foreach (var triangle in triangles) SurfaceIdMapperUtility.ModifyColorForChannel(ref colors[triangle], color, _activeChannel);
-            sectionMarkerData.SetColors(colors);
+            data.SetColors(colors);
         }
 
         private static void OnSceneViewRepaint(SceneView sceneView)
