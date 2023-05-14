@@ -12,7 +12,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
 {
     public static class SurfaceIdMapperUtility
     {
-        public static Color32 GetRandomSectionColorForChannel(Channel channel)
+        public static Color32 GetRandomColorForChannel(Channel channel)
         {
             // NOTE: Here we avoid the value of 0 since that is reserved for occluders.
             var randomValue = BitConverter.GetBytes(Random.Range(1, 255));
@@ -24,7 +24,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
                 255);
         }
 
-        private static Color32 GetSequentialSectionColorForChannel(ref int index, Channel channel)
+        private static Color32 GetSequentialColorForChannel(ref int index, Channel channel)
         {
             var value = BitConverter.GetBytes(index);
             index++;
@@ -54,7 +54,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             }
         }
 
-        public static void FillMarkerDataWithColor(SurfaceIdMapData data, Mesh mesh, Channel channel, Color color)
+        public static void FillMarkerDataWithColor(AdditionalVertexStream data, Mesh mesh, Channel channel, Color color)
         {
             // Performance timing start.
             var stopwatch = Stopwatch.StartNew();
@@ -67,7 +67,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
 
-        public static void SetSectionMarkerDataForMesh(SurfaceIdMapData data, Mesh mesh, Channel channel, SectionMarkMode mode)
+        public static void SetSectionMarkerDataForMesh(AdditionalVertexStream data, Mesh mesh, Channel channel, SectionMarkMode mode)
         {
             // NOTE: All triangles are handled as index buffers so a single triangle takes up 3 elements.
             
@@ -96,13 +96,15 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
                 // If this triangle is part of an already processed connected section, skip it.
                 if (visitedTriangles.ContainsKey((triangle[0], triangle[1], triangle[2]))) continue;
                 
-                // Performance timing start.
-                connectedTrianglesIndexBuffer = GetConnectedTriangles(triangle, mesh.triangles.ToList());
+                // Get the connected triangles as a list of indices into the triangles array.
+                connectedTrianglesIndexBuffer = data.GetConnectedTriangles(triangle);
+                if (connectedTrianglesIndexBuffer == null ||connectedTrianglesIndexBuffer.Count == 0) return;
+                //Debug.Log(connectedTrianglesIndexBuffer.Count);
                 
-                // Generate color for this section.
+                // Generate color for this surface.
                 color = mode == SectionMarkMode.Random
-                    ? GetRandomSectionColorForChannel(channel)
-                    : GetSequentialSectionColorForChannel(ref assignedColorIndex, channel);
+                    ? GetRandomColorForChannel(channel)
+                    : GetSequentialColorForChannel(ref assignedColorIndex, channel);
 
                 // Modify color for all connected triangles.
                 for (var t = 0; t < connectedTrianglesIndexBuffer.Count; t += 3)
@@ -122,7 +124,6 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
                     // Remember triangle.
                     visitedTriangles.Add((index0, index1, index2), true);
                 }
-                
             }
 
             // Apply colors.
@@ -133,19 +134,26 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
         
-        public static SurfaceIdMapData GetOrAddSurfaceIdMapData(GameObject gameObject)
+        public static AdditionalVertexStream GetOrAddSurfaceIdMapData(GameObject gameObject)
         {
             if (gameObject == null) Debug.LogError("Trying to get surface ID map data for null gameobject.");
-            if (gameObject.TryGetComponent(out SurfaceIdMapData data)) return data;
+            if (gameObject.TryGetComponent(out AdditionalVertexStream data)) return data;
             
             // If no surface ID map data has been added yet, add it and initialize the data with a default color.
             // the default color is black but with an R component of 1 so it is not seen as an occluder.
-            data = gameObject.AddComponent<SurfaceIdMapData>();
+            data = gameObject.AddComponent<AdditionalVertexStream>();
           //  data.Initialize();
 
             return data;
         }
 
+        /// <summary>
+        /// Given a triangle, returns a list of all connected triangles.
+        /// </summary>
+        /// <param name="triangle"></param>
+        /// <param name="triangles"></param>
+        /// <param name="addedTriangles"></param>
+        /// <returns></returns>
         public static List<int> GetConnectedTriangles(int[] triangle, List<int> triangles,
             HashSet<(int index0, int index1, int index2)> addedTriangles = null)
         {
@@ -161,6 +169,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             // todo: filter on these? so use a dictionary and then if duplicate don't bother checking it? but with recursion looks a bit tricky
 
 
+            // The index buffer of connected triangles.
             var connectedTrianglesIndexBuffer = new List<int>(triangle);
         
             var currentTriangle = new int[3];

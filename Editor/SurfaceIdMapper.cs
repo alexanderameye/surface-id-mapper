@@ -408,7 +408,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             if (_vertexColors.Count == 0) _vertexColors = new List<Color32>(new Color32[_mesh.vertexCount]);
 
             // Generate a random color.
-            var randomColor = SurfaceIdMapperUtility.GetRandomSectionColorForChannel(_activeChannel);
+            var randomColor = SurfaceIdMapperUtility.GetRandomColorForChannel(_activeChannel);
 
             // Set section marker data.
             SetSectionMarkerDataForTriangles(triangles, randomColor);
@@ -634,7 +634,9 @@ namespace Ameye.SurfaceIdMapper.Editor
             var triangles = new List<int>(_mesh.triangles);
             var normals = _mesh.normals.ToList();
             
-            return SurfaceIdMapperUtility.GetConnectedTriangles(triangle, triangles);
+            var data = SurfaceIdMapperUtility.GetOrAddSurfaceIdMapData(SelectedGameObject);
+            
+            return data.GetConnectedTriangles(triangle);
         }
 
 

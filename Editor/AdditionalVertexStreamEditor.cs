@@ -9,14 +9,15 @@ namespace Ameye.SurfaceIdMapper.Editor
     /// Custom Editor for SurfaceIdMapData.
     /// </summary>
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(SurfaceIdMapData))]
-    public class SurfaceIdMapDataEditor : UnityEditor.Editor
+    [CustomEditor(typeof(AdditionalVertexStream))]
+    public class AdditionalVertexStreamEditor : UnityEditor.Editor
     {
         private static class Styles
         {
             internal static readonly GUIContent ComponentInfo = EditorGUIUtility.TrTextContent("This component holds additional vertex attributes for a mesh.");
             internal static readonly GUIContent AdditionalVertexStreamsLabel = EditorGUIUtility.TrTextContent("Vertex Stream");
             internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Rebuild Data");
+            internal static readonly GUIContent InvalidateIslandDataButton = EditorGUIUtility. TrTextContent("Invalidate Island Data");
         }
         
         public VisualTreeAsset visualTreeAsset;
@@ -25,16 +26,17 @@ namespace Ameye.SurfaceIdMapper.Editor
         private Button fillButton, randomizeButton, setOccluderButton;
         private Button rebuildDataButton;
         private ProgressBar progressBar;
-        private SurfaceIdMapData data;
+        private AdditionalVertexStream data;
 
         private VisualElement headerIcon;
 
         public override void OnInspectorGUI()
         {
-            data = target as SurfaceIdMapData;
+            data = target as AdditionalVertexStream;
             
             GUI.enabled = false;
             if (data.MeshRenderer != null) EditorGUILayout.ObjectField(Styles.AdditionalVertexStreamsLabel, data.MeshRenderer.additionalVertexStreams, typeof(Mesh), true);
+            EditorGUILayout.Toggle("Island data?", data.IsIslandDataComputed);
             GUI.enabled = true;
             
             EditorGUILayout.Space();
@@ -44,6 +46,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button(Styles.RebuildDataButton)) data.Rebuild();
+                if (GUILayout.Button(Styles.InvalidateIslandDataButton)) data.InvalidateIslandData();
             }
         }
 
