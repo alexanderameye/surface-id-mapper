@@ -33,23 +33,30 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         // NOTE: Unity can't serialize a list of lists so need to do it this way.
         [System.Serializable]
         private class Island: List<int> {}
+
         [SerializeField]
-        private List<Island> islands;
-        
+        private List<Island> islands = null;
+
         [SerializeField]
-        private SerializedDictionary<(int, int, int), int> islandLookup;
+        private SerializedDictionary<(int, int, int), int> islandLookup = null;
 
         public int NumberOfIslands => islands.Count;
+
+        public bool isIslandDataComputed = false;
 
         /// <summary>
         /// Has the island data been computer or not?
         /// </summary>
-        public bool IsIslandDataComputed => islands != null;
+        public bool IsIslandDataComputed => isIslandDataComputed;
         
+        /// <summary>
+        /// Invalidate the calculated islands.
+        /// </summary>
         public void InvalidateIslandData()
         {
             islands = null;
             islandLookup = null;
+            isIslandDataComputed = false;
         }
 
         public MeshRenderer MeshRenderer
@@ -107,15 +114,61 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         /// </summary>
         private bool IsInitialized { get; set; }
 
-        private void Initialize()
+        /// <summary>
+        /// Rebuild the additional vertex stream. This method should be called when changes to the mesh occured.
+        /// </summary>
+        public void RebuildStream()
         {
-            if (IsInitialized) return;
+            // WARN: Do not change the colors here since this method is called in Awake() and this would invalidate the surface map ID data.
+            // Remove old stream.
+            CleanupStream();
+            
+            // Create new stream.
+            mesh = MeshFilter.sharedMesh;
+            stream = new Mesh();
+            stream.MarkDynamic();
+            stream.vertices = mesh.vertices;
+            stream.triangles = mesh.triangles;
+            stream.hideFlags = HideFlags.HideAndDontSave;
+            stream.name = mesh.name + " (AVS)";
 
-            // Initialize components cache.
-            if (!componentCache.IsValid()) componentCache = new ComponentCache(gameObject);
+            // Assign stream.
+            MeshRenderer.additionalVertexStreams = stream;
+        }
+
+        /// <summary>
+        /// Rebuild the stream data. This method should be called when changes to the mesh occured.
+        /// </summary>
+        private void RebuildStreamData()
+        {
+            colors = new Color[stream.vertices.Length];
+        }
+        
+        /// <summary>
+        /// Apply the stream data.
+        /// </summary>
+        private void ApplyStreamData()
+        {
+            if(colors is {Length: > 0}) stream.colors = colors;
+        }
+
+        /// <summary>
+        /// Rebuild the stream and the stream data. This method should be called when changes to the mesh occured.
+        /// </summary>
+        public void OnMeshChanged()
+        {
+            RebuildStream();
+            RebuildStreamData();
+            InvalidateIslandData();
+        }
+
+        public void Initialize()
+        {
+            //if (IsInitialized) return;
 
             // Create a new vertex stream that holds the vertex color data.
-            mesh = componentCache.MeshFilter.sharedMesh;
+            mesh = MeshFilter.sharedMesh;
+            CleanupStream();
             if (stream == null) stream = new Mesh();
             stream.MarkDynamic();
             stream.vertices = mesh.vertices;
@@ -123,32 +176,39 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             //colors = new Color[mesh.vertexCount];
             //for (var i = 0; i < colors.Length; i++) colors[i] = Color.white;
             //stream.colors = colors;
-            componentCache.MeshRenderer.additionalVertexStreams = stream;
-            componentCache.MeshRenderer.additionalVertexStreams.name = mesh.name + " (AVS)";
+            MeshRenderer.additionalVertexStreams = stream;
+            MeshRenderer.additionalVertexStreams.name = mesh.name + " (AVS)";
             stream.hideFlags = HideFlags.HideAndDontSave;
             
             IsInitialized = true;
         }
+
+        private void CleanupStream(){
+            if (!stream) return;
+#if UNITY_EDITOR
+            DestroyImmediate(stream);
+#else
+			Destroy(stream);
+#endif
+        }
         
         /// <summary>
-        /// Called when the user hits the Reset button in the inspector context menu.
         /// Called when adding the component for the first time.
+        /// Called when the user hits the Reset button in the inspector context menu.
         /// </summary>
         private void Reset()
         {
-            Initialize();
-            SetColor(Color.red);
+            RebuildStream();
+            RebuildStreamData();
+            //SetColor(Color.red);
+            //ApplyStreamData();
+            InvalidateIslandData();
         }
-
-        /// <summary>
-        /// Force rebuild the surface map ID data.
-        /// </summary>
-        public void Rebuild() => Reset();
 
         private void Awake()
         {
-            Initialize();
-            Apply();
+            RebuildStream();
+            ApplyStreamData();
         }
         
         private void OnDestroy()
@@ -161,7 +221,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         {
             Undo.RecordObject(this, "Apply stream vertex colors.");
             this.colors = colors;
-            Apply();
+            ApplyStreamData();
         }
         
         public void SetColor(Color color)
@@ -169,15 +229,11 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             Undo.RecordObject(this, "Apply stream vertex colors.");
             colors = new Color[mesh.vertexCount];
             for (var i = 0; i < colors.Length; i++) colors[i] = color;
-            Apply();
+            ApplyStreamData();
         }
 
-        public void OnUndoRedo() => Apply();
+        public void OnUndoRedo() => ApplyStreamData();
 
-        private void Apply()
-        {
-            if(colors is {Length: > 0}) stream.colors = colors;
-        }
         
         /// <summary>
         /// Returns whether a triangle is mapped to an island given a triangle and a list of islands.
@@ -207,7 +263,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         /// The island itself is a list that contains the indices.
         /// You can get a specific vertex using tris[(index * 3) + 0,1,2]
         /// </summary>
-        private void GenerateIslands()
+        public void CalculateIslands()
         {
             islands = new List<Island>();
             islandLookup = new SerializedDictionary<(int, int, int), int>();
@@ -240,6 +296,8 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
                 // Recursively map connected triangles for this triangle.
                 MapConnectedTriangles(islandLookup, islands, island, islandIndex, triangles, currentTriangle);
             }
+
+            isIslandDataComputed = true;
         }
         
         /// <summary>
@@ -325,7 +383,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             if (islands == null || islands.Count == 0 || islandLookup == null || islandLookup.Count == 0)
             {
                 Debug.Log("Generated Islands.");
-                GenerateIslands();
+                CalculateIslands();
             }
             
             // Do a lookup.

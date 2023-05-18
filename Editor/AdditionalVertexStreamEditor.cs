@@ -16,7 +16,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             internal static readonly GUIContent ComponentInfo = EditorGUIUtility.TrTextContent("This component holds additional vertex attributes for a mesh.");
             internal static readonly GUIContent AdditionalVertexStreamsLabel = EditorGUIUtility.TrTextContent("Vertex Stream");
-            internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Clear Stream");
+            internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Rebuild Stream");
             internal static readonly GUIContent InvalidateIslandDataButton = EditorGUIUtility. TrTextContent("Invalidate Islands");
         }
         
@@ -39,7 +39,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             if (data.MeshRenderer.additionalVertexStreams == null)
             {
                
-                    EditorGUILayout.HelpBox("additionalVertexStreams is null.", MessageType.Error);
+                    EditorGUILayout.HelpBox("The additionalVertexStreams for this MeshRenderer is null. This is probably cause by a change to the mesh.", MessageType.Error);
                 
             }
             if (data.IsIslandDataComputed)
@@ -55,7 +55,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(Styles.RebuildDataButton)) data.Rebuild();
+                if (GUILayout.Button(Styles.RebuildDataButton)) data.RebuildStream();
                 if (GUILayout.Button(Styles.InvalidateIslandDataButton)) data.InvalidateIslandData();
             }
             

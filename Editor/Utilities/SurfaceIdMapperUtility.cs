@@ -133,7 +133,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
         
-        public static AdditionalVertexStream GetOrAddSurfaceIdMapData(GameObject gameObject)
+        public static AdditionalVertexStream GetOrAddAdditionalVertexStream(GameObject gameObject)
         {
             if (gameObject == null) Debug.LogError("Trying to get surface ID map data for null gameobject.");
             if (gameObject.TryGetComponent(out AdditionalVertexStream data)) return data;
