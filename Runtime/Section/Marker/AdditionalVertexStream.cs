@@ -149,6 +149,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         /// </summary>
         private void ApplyStreamData()
         {
+            if(!stream) RebuildStream();
             if(colors is {Length: > 0}) stream.colors = colors;
         }
 

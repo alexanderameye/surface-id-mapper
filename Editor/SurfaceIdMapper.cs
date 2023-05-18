@@ -8,6 +8,7 @@ using Ameye.SRPUtilities.Editor.Enums;
 using Ameye.SRPUtilities.Editor.Utilities;
 using Ameye.SurfaceIdMapper.Editor.Marker;
 using Ameye.SurfaceIdMapper.Editor.Utilities;
+using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -74,6 +75,31 @@ namespace Ameye.SurfaceIdMapper.Editor
         public static bool IsActive()
         {
             return _active;
+        }
+
+        [MenuItem("Tools/Surface ID Mapper/Randomize children")]
+        public static void RandomizeAllSurfaceMaps()
+        {
+            var selectedGameobject = Selection.activeGameObject;
+            if (selectedGameobject == null)
+            {
+                Debug.LogWarning("No gameobject was selected.");
+                return;
+            }
+
+
+            var streams = selectedGameobject.GetComponentsInChildren<AdditionalVertexStream>();
+            var streamCount = streams.Length;
+            for (var i = 0; i < streamCount; i++)
+            {
+                var stream = streams[i];
+                
+                EditorUtility.DisplayProgressBar("Assigning surface IDs", "Calculating ... (" + i + "/" + streamCount + ")", (float) i / streamCount);
+                Undo.RecordObject(stream, "Modified Section Marker Data.");
+                SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(stream, stream.MeshFilter.sharedMesh, _activeChannel, SectionMarkMode.Random);
+            }
+            EditorUtility.ClearProgressBar();
+            
         }
 
         public static void Enter()
@@ -390,6 +416,16 @@ namespace Ameye.SurfaceIdMapper.Editor
             }
         }
 
+        public static void SetSectionMarkerDataForGameobject(GameObject gameObject, SectionMarkMode application)
+        {
+            if (gameObject.TryGetComponent(out MeshFilter filter))
+            {
+                var stream = SurfaceIdMapperUtility.GetOrAddAdditionalVertexStream(SelectedGameObject);
+                Undo.RecordObject(stream, "Modified Section Marker Data.");
+                SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(stream, filter.sharedMesh, _activeChannel, application);
+            }
+        }
+        
         public static void SetSectionMarkerDataForSelectedGameobject(SectionMarkMode application)
         {
             var markerData = SurfaceIdMapperUtility.GetOrAddAdditionalVertexStream(SelectedGameObject);
