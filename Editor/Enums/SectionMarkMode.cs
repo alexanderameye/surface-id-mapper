@@ -1,4 +1,4 @@
-namespace Ameye.OutlinesToolkit.Editor.Sectioning.Enums
+namespace Ameye.SurfaceIdMapper.Editor.Enums
 {
     public enum SectionMarkMode
     {

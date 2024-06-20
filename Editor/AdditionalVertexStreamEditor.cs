@@ -1,4 +1,4 @@
-using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
+using Ameye.SurfaceIdMapper.Editor.Enums;
 using Ameye.SurfaceIdMapper.Editor.Utilities;
 using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEditor;

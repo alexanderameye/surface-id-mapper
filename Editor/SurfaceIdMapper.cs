@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
 using Ameye.OutlinesToolkit.Editor.Sectioning.Utilities;
-using Ameye.SRPUtilities.Editor.DebugViewer;
-using Ameye.SRPUtilities.Editor.Enums;
-using Ameye.SRPUtilities.Editor.Utilities;
-using Ameye.SurfaceIdMapper.Editor.Marker;
+using Ameye.SurfaceIdMapper.Editor.Enums;
 using Ameye.SurfaceIdMapper.Editor.Utilities;
 using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEditor;
@@ -108,16 +104,16 @@ namespace Ameye.SurfaceIdMapper.Editor
             ToolActiveStatusChanged(true);
 
             // Enable surface id mapper debug view.
-            DebugViewHandler.EnableDebugView(true);
+            //DebugViewHandler.EnableDebugView(true);
 
 
-            var debugViewsAsset = DebugViewHandler.DebugViewsAsset;
-            if (debugViewsAsset == null || debugViewsAsset.debugViews == null)
-            {
-                Debug.LogError("No debug views asset assigned.");
-                return;
-            }
-            DebugViewHandler.SetDebugView(debugViewsAsset.debugViews.Find(view => view.name == "Surface ID Mapper"));
+            // var debugViewsAsset = DebugViewHandler.DebugViewsAsset;
+            // if (debugViewsAsset == null || debugViewsAsset.debugViews == null)
+            // {
+            //     Debug.LogError("No debug views asset assigned.");
+            //     return;
+            // }
+            // DebugViewHandler.SetDebugView(debugViewsAsset.debugViews.Find(view => view.name == "Surface ID Mapper"));
 
             // scene view
             SceneView.lastActiveSceneView.sceneViewState.SetAllEnabled(false);
@@ -169,7 +165,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             // ui
             Tools.hidden = false; // fixme: idk what this does really, nothing it seems?
             SurfaceIdMapperOverlay.Hide(); // hide scene view overlay
-            DebugViewHandler.EnableDebugView(false); // disable sectioning debug view
+          //  DebugViewHandler.EnableDebugView(false); // disable sectioning debug view
 
             // finish editing, need to save the data
             // var paintData = _selectedGameObject.GetComponent<SectionPaintData>();

@@ -1,13 +1,11 @@
-using Ameye.OutlinesToolkit.Editor;
-using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
-using Ameye.SRPUtilities.Editor.DebugViewer;
+using Ameye.SurfaceIdMapper.Editor.Enums;
 using UnityEditor;
 using UnityEditor.Overlays;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Ameye.SurfaceIdMapper.Editor.Marker
+namespace Ameye.SurfaceIdMapper.Editor
 {
     [Overlay(typeof(SceneView), "Surface ID Mapper")]
     public class SurfaceIdMapperOverlay : Overlay, ITransientOverlay
@@ -61,9 +59,9 @@ namespace Ameye.SurfaceIdMapper.Editor.Marker
         // note: this may be called from section painter
         private static void OnActiveChannelChanged(Channel channel)
         {
-            DebugViewHandler.EnableRChannel(channel == Channel.R);
-            DebugViewHandler.EnableGChannel(channel == Channel.G);
-            DebugViewHandler.EnableBChannel(channel == Channel.B);
+            //DebugViewHandler.EnableRChannel(channel == Channel.R);
+            //DebugViewHandler.EnableGChannel(channel == Channel.G);
+            //DebugViewHandler.EnableBChannel(channel == Channel.B);
         }
 
         public override VisualElement CreatePanelContent()
@@ -77,9 +75,9 @@ namespace Ameye.SurfaceIdMapper.Editor.Marker
             _channelEnum.RegisterValueChangedCallback(evt =>
             {
                 var channel = (Channel) evt.newValue;
-                DebugViewHandler.EnableRChannel(channel == Channel.R);
-                DebugViewHandler.EnableGChannel(channel == Channel.G);
-                DebugViewHandler.EnableBChannel(channel == Channel.B);
+              //  DebugViewHandler.EnableRChannel(channel == Channel.R);
+               // DebugViewHandler.EnableGChannel(channel == Channel.G);
+                //DebugViewHandler.EnableBChannel(channel == Channel.B);
                 SurfaceIdMapper.SetActiveChannel(channel);
             });
             
@@ -109,9 +107,9 @@ namespace Ameye.SurfaceIdMapper.Editor.Marker
 
 
             // initialize to only show red channel (default)
-            DebugViewHandler.EnableRChannel(true);
-            DebugViewHandler.EnableGChannel(false);
-            DebugViewHandler.EnableBChannel(false);
+           // DebugViewHandler.EnableRChannel(true);
+            //DebugViewHandler.EnableGChannel(false);
+            //DebugViewHandler.EnableBChannel(false);
             SurfaceIdMapper.SetActiveChannel(Channel.R);
 
             collapsed = false;

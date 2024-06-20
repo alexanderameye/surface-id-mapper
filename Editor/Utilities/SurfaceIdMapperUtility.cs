@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
+using Ameye.SurfaceIdMapper.Editor.Enums;
 using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
