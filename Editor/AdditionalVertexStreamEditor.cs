@@ -1,3 +1,5 @@
+using Ameye.OutlinesToolkit.Editor.Sectioning.Enums;
+using Ameye.SurfaceIdMapper.Editor.Utilities;
 using Ameye.SurfaceIdMapper.Section.Marker;
 using UnityEditor;
 using UnityEngine;
@@ -18,6 +20,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             internal static readonly GUIContent AdditionalVertexStreamsLabel = EditorGUIUtility.TrTextContent("Vertex Stream");
             internal static readonly GUIContent RebuildDataButton = EditorGUIUtility. TrTextContent("Rebuild Stream");
             internal static readonly GUIContent InvalidateIslandDataButton = EditorGUIUtility. TrTextContent("Invalidate Islands");
+            internal static readonly GUIContent RandomizeColorsButton = EditorGUIUtility. TrTextContent("Randomize Colors");
         }
         
         public VisualTreeAsset visualTreeAsset;
@@ -26,25 +29,25 @@ namespace Ameye.SurfaceIdMapper.Editor
         private Button fillButton, randomizeButton, setOccluderButton;
         private Button rebuildDataButton;
         private ProgressBar progressBar;
-        private AdditionalVertexStream data;
+        private AdditionalVertexStream stream;
 
         private VisualElement headerIcon;
 
         public override void OnInspectorGUI()
         {
-            data = target as AdditionalVertexStream;
+            stream = target as AdditionalVertexStream;
             
             GUI.enabled = false;
-            if (data.MeshRenderer != null) EditorGUILayout.ObjectField(Styles.AdditionalVertexStreamsLabel, data.MeshRenderer.additionalVertexStreams, typeof(Mesh), true);
-            if (data.MeshRenderer.additionalVertexStreams == null)
+            if (stream.MeshRenderer != null) EditorGUILayout.ObjectField(Styles.AdditionalVertexStreamsLabel, stream.MeshRenderer.additionalVertexStreams, typeof(Mesh), true);
+            if (stream.MeshRenderer.additionalVertexStreams == null)
             {
                
-                    EditorGUILayout.HelpBox("The additionalVertexStreams for this MeshRenderer is null. This is probably cause by a change to the mesh.", MessageType.Error);
+                    EditorGUILayout.HelpBox("The additionalVertexStreams for this MeshRenderer is null. This was probably caused by a change to the mesh.", MessageType.Error);
                 
             }
-            if (data.IsIslandDataComputed)
+            if (stream.IsIslandDataComputed)
             {
-                EditorGUILayout.LabelField("Surface mapper found " + data.NumberOfIslands + " islands.");
+                EditorGUILayout.LabelField("Surface mapper found " + stream.NumberOfIslands + " islands.");
             }
             else
             {
@@ -55,8 +58,13 @@ namespace Ameye.SurfaceIdMapper.Editor
             
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(Styles.RebuildDataButton)) data.RebuildStream();
-                if (GUILayout.Button(Styles.InvalidateIslandDataButton)) data.InvalidateIslandData();
+                if (GUILayout.Button(Styles.RebuildDataButton)) stream.RebuildStream();
+                if (GUILayout.Button(Styles.InvalidateIslandDataButton)) stream.InvalidateIslandData();
+                if (GUILayout.Button(Styles.RandomizeColorsButton))
+                {
+                    
+                    SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(stream, stream.MeshFilter.sharedMesh, Channel.R, SectionMarkMode.Random);
+                }
             }
             
             EditorGUILayout.Space();

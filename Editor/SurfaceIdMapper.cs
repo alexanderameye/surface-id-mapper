@@ -534,10 +534,14 @@ namespace Ameye.SurfaceIdMapper.Editor
         private static void SetSectionMarkerDataForTriangles(List<int> triangles, Color32 color)
         {
             var data = SurfaceIdMapperUtility.GetOrAddAdditionalVertexStream(SelectedGameObject);
+            if(data == null) Debug.LogWarning("DATA IS NULL");
             Undo.RecordObject(data, "Modified SectionPaintData.");
 
             var colors = data.Colors;
-            foreach (var triangle in triangles) SurfaceIdMapperUtility.ModifyColorForChannel(ref colors[triangle], color, _activeChannel);
+            foreach (var triangle in triangles)
+            {
+                SurfaceIdMapperUtility.ModifyColorForChannel(ref colors[triangle], color, _activeChannel);
+            }
             data.SetColors(colors);
         }
 
@@ -683,6 +687,8 @@ namespace Ameye.SurfaceIdMapper.Editor
             var normals = _mesh.normals.ToList();
             
             var data = SurfaceIdMapperUtility.GetOrAddAdditionalVertexStream(SelectedGameObject);
+            if(data == null) Debug.LogWarning("DATA IS NULL");
+            
             
             return data.GetConnectedTriangles(triangle);
         }

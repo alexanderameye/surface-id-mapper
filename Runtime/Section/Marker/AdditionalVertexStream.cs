@@ -17,6 +17,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
     /// </summary>
     [DisallowMultipleComponent, ExecuteInEditMode]
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+    [System.Serializable]
     public class AdditionalVertexStream : MonoBehaviour
     {
         // Serialized stream data.
@@ -25,7 +26,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         
         // Meshes.
         [SerializeField] private Mesh mesh;
-        [SerializeField] private Mesh stream; // TODO: Convert this to a more minimal mesh with a different data structure that allows rapid operations on it.
+        [SerializeField] private Mesh stream; // TODO: Convert this to a more minimal mesh with a different data structure that allows rapid operations on it + SERIALIZATION??.
 
         private ComponentCache componentCache;
         
@@ -38,7 +39,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         private List<Island> islands = null;
 
         [SerializeField]
-        private SerializedDictionary<(int, int, int), int> islandLookup = null;
+        private GenericDictionary<(int, int, int), int> islandLookup = null;
 
         public int NumberOfIslands => islands.Count;
 
@@ -119,6 +120,8 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         /// </summary>
         public void RebuildStream()
         {
+            Debug.Log("RebuildStream: " + MeshFilter.sharedMesh.name);
+            
             // WARN: Do not change the colors here since this method is called in Awake() and this would invalidate the surface map ID data.
             // Remove old stream.
             CleanupStream();
@@ -206,10 +209,25 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             InvalidateIslandData();
         }
 
+        /// <summary>
+        /// Called when the script instance is being loaded.
+        /// </summary>
         private void Awake()
         {
-            RebuildStream();
-            ApplyStreamData();
+            //Debug.Log("Awake: " + MeshFilter.name);
+            Debug.Log("Stream: " + stream);
+            
+            mesh = MeshFilter.sharedMesh;
+            stream = new Mesh();
+            stream.MarkDynamic();
+            stream.vertices = mesh.vertices;
+            stream.triangles = mesh.triangles;
+            stream.hideFlags = HideFlags.HideAndDontSave;
+            stream.name = mesh.name + " (AVS)";
+            if(colors is {Length: > 0}) stream.colors = colors;
+
+            MeshRenderer.additionalVertexStreams = stream;
+            // ApplyStreamData();
         }
         
         private void OnDestroy()
@@ -267,7 +285,7 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         public void CalculateIslands()
         {
             islands = new List<Island>();
-            islandLookup = new SerializedDictionary<(int, int, int), int>();
+            islandLookup = new GenericDictionary<(int, int, int), int>();
 
             // Get the triangles.
             var triangles = MeshFilter.sharedMesh.triangles;
@@ -331,13 +349,14 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             return generatedIslandLookup;
         }
 
+        
         /// <summary>
         /// Recursive function that maps connected triangle for a given island.
         /// </summary>
         /// <param name="island"></param>
         /// <param name="triangles"></param>
         /// <param name="targetTriangle"></param>
-        private void MapConnectedTriangles(Dictionary<(int, int, int), int> lookup, List<Island> islands, Island island, int islandIndex, int[] triangles, int[] targetTriangle){
+        private void MapConnectedTriangles(GenericDictionary<(int, int, int), int> lookup, List<Island> islands, Island island, int islandIndex, int[] triangles, int[] targetTriangle){
             
             var currentTriangle = new int[3];
             
@@ -388,7 +407,12 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
             }
             
             // Do a lookup.
-            if (!islandLookup.TryGetValue((triangle[0], triangle[1], triangle[2]), out var islandIndex)) return null;
+            if (!islandLookup.TryGetValue((triangle[0], triangle[1], triangle[2]), out _)) CalculateIslands();
+            if (!islandLookup.TryGetValue((triangle[0], triangle[1], triangle[2]), out var islandIndex))
+            {
+                return null;
+            }
+            
             return islandIndex < islands.Count ? islands[islandIndex] : null;
         }
         
