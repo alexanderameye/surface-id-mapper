@@ -21,13 +21,13 @@ Surface ID Mapper is a utility for automatically assigning vertex colors to mesh
 Select a mesh renderer, and click on the button that appears in the scene view to paint it.
 
 **Actions and Shortcuts**
-`R` to randomize each surface
-`F` to fill each surface with selected color
-`Left Click` to paint surface with selected color
-`Right Click` to paint surface with random color
-`Shift + Left Click` to pick the color of the surface
-`Click + Drag` to paint multiple surfaces
-`Esc` to leave painting mode
+- `R` to randomize each surface
+- `F` to fill each surface with selected color
+- `Left Click` to paint surface with selected color
+- `Right Click` to paint surface with random color
+- `Shift + Left Click` to pick the color of the surface
+- `Click + Drag` to paint multiple surfaces
+- `Esc` to leave painting mode
 
 ## How does it work?
 
@@ -38,6 +38,10 @@ For each painted gameobject, a `Additional Vertex Stream` component is added whi
 - Not tested in production. Use at your own risk.
 - The code is messy. Use at your own risk.
 - Painting on very large meshes can be slow. Use at your own risk.
+
+## Roadmap
+
+- Clean up code
 
 ## Contact
 
