@@ -137,7 +137,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             SurfaceIdMapper.ClearPaintDataForSelectedGameObject();
         }
 
-        private static void OnColorPicked(Color32 color)
+        private static void OnColorPicked(Color color)
         {
             if (_colorField != null)
             {

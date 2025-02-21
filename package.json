@@ -1,15 +1,17 @@
 {
-  "name": "com.ameye.surface-id-mapper",
+  "name": "dev.ameye.surface-id-mapper",
   "displayName": "Surface ID Mapper",
   "version": "1.0.0",
-  "unity": "2022.2",
-  "description": "Surface ID Mapper.",
+  "unity": "2022.3",
+  "description": "Surface ID Mapper is a utility for automatically assigning vertex colors to mesh surfaces in Unity.",
+  "documentationUrl": "https://ameye.dev/",
   "keywords": [
     "mesh",
     "surface ID"
   ],
   "author": {
     "name": "Alexander Ameye",
-    "email": "alexanderameye@gmail.com"
+    "email": "alexanderameye@gmail.com",
+    "url": "https://ameye.dev"
   }
 }

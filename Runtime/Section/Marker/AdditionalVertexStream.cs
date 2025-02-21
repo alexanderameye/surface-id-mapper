@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
 
 namespace Ameye.SurfaceIdMapper.Section.Marker
@@ -238,14 +236,19 @@ namespace Ameye.SurfaceIdMapper.Section.Marker
         
         public void SetColors(Color[] colors)
         {
+#if UNITY_EDITOR
             Undo.RecordObject(this, "Apply stream vertex colors.");
+            #endif
             this.colors = colors;
             ApplyStreamData();
         }
         
         public void SetColor(Color color)
         {
+#if UNITY_EDITOR
             Undo.RecordObject(this, "Apply stream vertex colors.");
+            
+            #endif
             colors = new Color[mesh.vertexCount];
             for (var i = 0; i < colors.Length; i++) colors[i] = color;
             ApplyStreamData();

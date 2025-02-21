@@ -32,8 +32,8 @@ namespace Ameye.SurfaceIdMapper.Editor
         private static MeshIntersection _meshIntersection;
 
         // vertex colors
-        private static List<Color32> _vertexColors;
-        public static Color32 _pickedColor;
+        private static List<Color> _vertexColors;
+        public static Color _pickedColor;
         private static Channel _activeChannel = Channel.R;
 
         // debug label
@@ -47,12 +47,12 @@ namespace Ameye.SurfaceIdMapper.Editor
 
         // selection
         public static GameObject SelectedGameObject { get; private set; }
-        public static Color32 PickedColor => _pickedColor;
+        public static Color PickedColor => _pickedColor;
 
         // Actions.
         public static event Action<bool> ToolActiveStatusChanged = delegate { };
         public static event Action<Channel> ActiveChannelChanged = delegate { };
-        public static event Action<Color32> ColorPicked = delegate { };
+        public static event Action<Color> ColorPicked = delegate { };
         public static event Action<bool> EnabledStatusChanged = delegate {  };
 
         
@@ -429,7 +429,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             SurfaceIdMapperUtility.SetSectionMarkerDataForMesh(markerData, _selectedMeshFilter.sharedMesh, _activeChannel, application);
         }
 
-        public static void SetSectionMarkerDataForSelectedGameObject(Color32 color)
+        public static void SetSectionMarkerDataForSelectedGameObject(Color color)
         {
             var markerData = SurfaceIdMapperUtility.GetOrAddAdditionalVertexStream(SelectedGameObject);
             Undo.RecordObject(markerData, "Modified Section Marker Data.");
@@ -445,11 +445,11 @@ namespace Ameye.SurfaceIdMapper.Editor
         {
             // get vertex colors
             // FIXME: don't use GetColors, we store colors in paint data... right??
-            if (_vertexColors == null) _vertexColors = new List<Color32>(new Color32[_mesh.vertexCount]);
+            if (_vertexColors == null) _vertexColors = new List<Color>(new Color[_mesh.vertexCount]);
             _mesh.GetColors(_vertexColors);
 
             // If no vertex colors were set, start from blank list.
-            if (_vertexColors.Count == 0) _vertexColors = new List<Color32>(new Color32[_mesh.vertexCount]);
+            if (_vertexColors.Count == 0) _vertexColors = new List<Color>(new Color[_mesh.vertexCount]);
 
             // Generate a random color.
             var randomColor = SurfaceIdMapperUtility.GetRandomColorForChannel(_activeChannel);
@@ -461,21 +461,22 @@ namespace Ameye.SurfaceIdMapper.Editor
             PickColor(randomColor);
         }
 
-        public static void PickColor(Color32 color)
+        public static void PickColor(Color color)
         {
             _pickedColor = color;
             ColorPicked(_pickedColor);
         }
 
-        private static void SetVertexColor(List<int> connectedTriangles, Color32 color)
+        private static void SetVertexColor(List<int> connectedTriangles, Color color)
         {
-            Debug.Log("SetVertexColor");
+          //  Debug.Log("SetVertexColor");
+            //Debug.Log(color);
 
             // _pickedColor = color;
 
             // get vertex colors
             // FIXME: don't use GetColors, we store colors in paint data...
-            _vertexColors ??= new List<Color32>(new Color32[_mesh.vertexCount]);
+            _vertexColors ??= new List<Color>(new Color[_mesh.vertexCount]);
             _mesh.GetColors(_vertexColors);
 
             // if no vertex colors were set, start from blank list
@@ -483,7 +484,7 @@ namespace Ameye.SurfaceIdMapper.Editor
             {
 
                 Debug.Log("No vertex colors have been set to paint with.");
-                _vertexColors = new List<Color32>(new Color32[_mesh.vertexCount]);
+                _vertexColors = new List<Color>(new Color[_mesh.vertexCount]);
             }
 
             // set paint data
@@ -527,7 +528,7 @@ namespace Ameye.SurfaceIdMapper.Editor
         /// </summary>
         /// <param name="triangles"></param>
         /// <param name="color"></param>
-        private static void SetSectionMarkerDataForTriangles(List<int> triangles, Color32 color)
+        private static void SetSectionMarkerDataForTriangles(List<int> triangles, Color color)
         {
             var data = SurfaceIdMapperUtility.GetOrAddAdditionalVertexStream(SelectedGameObject);
             if(data == null) Debug.LogWarning("DATA IS NULL");

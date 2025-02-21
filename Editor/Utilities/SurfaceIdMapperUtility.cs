@@ -12,17 +12,31 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
 {
     public static class SurfaceIdMapperUtility
     {
-        public static Color32 GetRandomColorForChannel(Channel channel)
+        // public static Color32 GetRandomColorForChannel(Channel channel)
+        // {
+        //     // NOTE: Here we avoid the value of 0 since that is reserved for occluders.
+        //     var randomValue = BitConverter.GetBytes(Random.Range(1, 255));
+        //
+        //     return new Color32(
+        //         channel == Channel.R ? randomValue[0] : (byte) 0,
+        //         channel == Channel.G ? randomValue[0] : (byte) 0,
+        //         channel == Channel.B ? randomValue[0] : (byte) 0,
+        //         255);
+        // }
+        //
+        public static Color GetRandomColorForChannel(Channel channel)
         {
-            // NOTE: Here we avoid the value of 0 since that is reserved for occluders.
-            var randomValue = BitConverter.GetBytes(Random.Range(1, 255));
+            // Generate a random float value in the range [0, 1)
+            float randomValue = Random.Range(0f, 1f);
 
-            return new Color32(
-                channel == Channel.R ? randomValue[0] : (byte) 0,
-                channel == Channel.G ? randomValue[0] : (byte) 0,
-                channel == Channel.B ? randomValue[0] : (byte) 0,
-                255);
+            return new Color(
+                channel == Channel.R ? randomValue : 0f,
+                channel == Channel.G ? randomValue : 0f,
+                channel == Channel.B ? randomValue : 0f,
+                1f // Alpha channel, fully opaque
+            );
         }
+
 
         private static Color32 GetSequentialColorForChannel(ref int index, Channel channel)
         {
@@ -64,7 +78,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
             data.SetColors(colors);
             // Performance timing stop.
             stopwatch.Stop();
-            Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
+           // Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
 
         public static void SetSectionMarkerDataForMesh(AdditionalVertexStream data, Mesh mesh, Channel channel, SectionMarkMode mode)
@@ -130,7 +144,7 @@ namespace Ameye.SurfaceIdMapper.Editor.Utilities
       
             // Performance timing stop.
             stopwatch.Stop();
-            Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
+//            Debug.Log("SetSectionMarkerDataForMesh [" + stopwatch.ElapsedMilliseconds + "ms],");
         }
         
         public static AdditionalVertexStream GetOrAddAdditionalVertexStream(GameObject gameObject)

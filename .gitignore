@@ -71,6 +71,7 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
+
 # General
 .DS_Store
 .AppleDouble
@@ -97,3 +98,4 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+.idea
